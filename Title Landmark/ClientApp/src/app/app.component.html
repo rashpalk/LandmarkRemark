@@ -1,0 +1,225 @@
+<div class="jumbotron">
+  <div class="container">
+    <div class="row">
+      <div  style="text-align:center" class="col-sm-12">
+        <h3>Landmark Remark</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <form [formGroup]="registrationForm" (ngSubmit)="SubmitClicked()" *ngIf="!IsUserLoggedIn || newUser">
+          <h2>{{formTitle}}</h2>
+          <div class="row">
+            <div style="color:red" class="col-sm-12">
+              {{message}}
+            </div>
+          </div>
+          <div *ngIf="newUser" class="form-group">
+            <label>First Name</label>
+            <input type="text" formControlName="firstName" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.firstName.errors }" />
+            <div *ngIf="submitted && f.firstName.errors" class="invalid-feedback">
+              <div *ngIf="f.firstName.errors.required">First Name is required</div>
+            </div>
+          </div>
+          <div *ngIf="newUser" class="form-group">
+            <label>Last Name</label>
+            <input type="text" formControlName="lastName" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.lastName.errors }" />
+            <div *ngIf="submitted && f.lastName.errors" class="invalid-feedback">
+              <div *ngIf="f.lastName.errors.required">Last Name is required</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="text" formControlName="email" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
+            <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+              <div *ngIf="f.email.errors.required">Email is required</div>
+              <div *ngIf="f.email.errors.email">Email must be a valid email address</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" formControlName="password" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
+            <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+              <div *ngIf="f.password.errors.required">Password is required</div>
+              <div *ngIf="f.password.errors.minlength">Password must be at least 6 characters</div>
+            </div>
+          </div>
+          <div *ngIf="newUser" class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" formControlName="confirmpassword" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.confirmpassword.errors }" />
+            <div *ngIf="submitted && f.confirmpassword.errors" class="invalid-feedback">
+              <div *ngIf="f.confirmpassword.errors.required">Password is required</div>
+              <div *ngIf="f.confirmpassword.errors.minlength">Password must be at least 6 characters</div>
+            </div>
+            <small class="invalid-feedback" *ngIf="f.confirmpassword.value !== f.password.value">Password and confirm password do not match!</small>
+
+          </div>
+          <div class="form-group">
+            <button [disabled]="loading" class="btn btn-primary">{{buttonTitle}}</button>
+          </div>
+        </form>
+        <div *ngIf="newUser" class="form-group">
+          <button [disabled]="loading" (click)="SignInClicked()" class="btn btn-primary">Sign In</button>
+        </div>
+        <div *ngIf="!newUser && !IsUserLoggedIn" class="form-group">
+          Not registered?  <button (click)="NewUserClicked()" class="btn btn-primary">Click here</button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="IsUserLoggedIn">
+      <div class="row p-3">
+        <div class="col-sm-7">
+          <h3>Welcome {{loggedInUserName}}</h3>
+        </div>
+        <div  class="col-sm-3">
+          <button *ngIf="isLocationChanged"  type="submit" (click)="BaktoCurrentLocClicked()" class="btn btn-primary">Back to Current Location</button>
+        </div>
+        <div class="col-sm-2">
+          <button type="submit" (click)="LogOutClicked()" class="btn btn-primary">LogOut</button>
+        </div>
+      </div>
+      <div class="row p-3">
+        <div class="col-sm-10">
+          Note:Please click on the map where you want to save your note and and enter your note in the text box below and click Save button.<br />
+          Please choose, if you want other users to see your note by selecting the Is Public checkbox.
+        </div>
+      </div>
+
+      <div class="col-sm-12">
+        <agm-map [latitude]="lat"
+                 [longitude]="lng"
+                 [zoom]="zoom"
+                 [disableDefaultUI]="false"
+                 [zoomControl]="false"
+                 (mapClick)="mapClicked($event)">
+
+          <agm-marker-cluster [minimumClusterSize]="minClusterSize"
+                              imagePath="https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m">
+
+            <agm-marker *ngFor="let m of markers; let i = index;trackBy: trackByFn"
+                        (markerClick)="clickedMarker(m.label, i)"
+                        [latitude]="m.latitude"
+                        [longitude]="m.longitude"
+                        [label]="m.label"
+                        [markerDraggable]="m.draggable"
+                        (dragEnd)="markerDragEnd(m, $event)">
+
+              <agm-info-window>
+                <strong>{{ note }}</strong>
+              </agm-info-window>
+
+            </agm-marker>
+
+          </agm-marker-cluster>
+
+
+          <agm-circle [latitude]="lat" [longitude]="lng"
+                      [radius]="5000"
+                      [fillColor]="'red'"
+                      [circleDraggable]="true"
+                      [editable]="true">
+          </agm-circle>
+
+        </agm-map>
+      </div>
+      <div class="row divBorder">
+        <div class="col-sm-6">
+          <form [formGroup]="notesForm" (ngSubmit)="SaveNotes()">
+            <div class="row p-3">
+              <div class="col-sm-12">
+                <div style="color:red">{{messageNote}}</div>
+                <h3>Add Notes</h3>
+              </div>
+            </div>
+            <div class="row p-3">
+              <div class="col-sm-6 control-label">Enter Your Note:</div>
+              <div class="col-sm-6">
+                <input type="text" formControlName="labelValue" class="form-control" [ngClass]="{ 'is-invalid': notesSubmitted && n.labelValue.errors }" />
+                <div *ngIf="notesSubmitted && n.labelValue.errors" class="invalid-feedback">
+                  <div *ngIf="n.labelValue.errors.required">Please enter note</div>
+                </div>
+              </div>
+            </div>
+            <div class="row p-3">
+              <div class="col-sm-6 control-label">Is Public:</div>
+              <div class="col-sm-6">
+                <input type="checkbox" formControlName="isPublic">
+              </div>
+            </div>
+            <div class="row p-3">
+              <div class="col-sm-6"></div>
+              <div class="col-sm-6">
+                <button class="btn btn-primary">Save Note</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-sm-6">
+          <form [formGroup]="notesSearchForm" (ngSubmit)="SearchNoteClicked()">
+            <div class="row p-3">
+              <div class="col-sm-12">
+                <h3>Search Notes</h3>
+              </div>
+            </div>
+            <div class="row p-3">
+              <div class="col-sm-6 control-label">Search by User's Name:</div>
+              <div class="col-sm-6">
+                <input type="text" formControlName="searchName" class="form-control" />
+              </div>
+            </div>
+            <div class="row p-3">
+              <div class="col-sm-6 control-label">Search by Notes's Text:</div>
+              <div class="col-sm-6">
+                <input type="text" formControlName="searchString" class="form-control" />
+              </div>
+            </div>
+            <div class="row p-3">
+              <div class="col-sm-6"></div>
+              <div class="col-sm-6"><button class="btn btn-primary">Search Note</button></div>
+            </div>
+            <ng-container *ngIf="searchNotesResult?.length !== 0">
+              <div class="row p-3">
+                <div class="col-sm-12 ">
+                  <h3>Searh Results</h3>
+                </div>                
+              </div>
+              <div class="row">
+                <div class="col-sm-1">
+                  <b>No.</b>
+                </div>
+                <div class="col-sm-8">
+                  <b>Note</b>
+                </div>
+                <div class="col-sm-3">
+                  <b>View on Map</b>
+                </div>
+              </div>
+              <div *ngFor="let note of searchNotesResult; let i = index;trackBy: trackByFnNotes">
+                <div class="row">
+                  <div class="col-sm-1">
+                   {{i+1}}
+                  </div>
+                  <div class="col-sm-7">
+                    {{note.label}}
+                  </div>
+                  <div class="col-sm-4">
+                    <button (click)="ViewOnMapClicked(note)" class="btn btn-primary">
+                      View on Map
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </form>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+

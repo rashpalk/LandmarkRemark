@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="TitleLandmarkLibrary">
+      <HintPath>..\TitleLandmarkLibrary\bin\Debug\netcoreapp2.2\TitleLandmarkLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="TitleLandmark_Models">
+      <HintPath>..\TitleLandmark_Models\bin\Debug\netcoreapp2.2\TitleLandmark_Models.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

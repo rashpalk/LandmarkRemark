@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="TitleLandmarkLibrary">
+      <HintPath>..\TitleLandmarkLibrary\bin\Debug\netcoreapp2.2\TitleLandmarkLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="TitleLandmark_Interfaces">
+      <HintPath>..\TitleLandmark_Interfaces\bin\Debug\netcoreapp2.2\TitleLandmark_Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="TitleLandmark_Models">
+      <HintPath>..\TitleLandmark_Models\bin\Debug\netcoreapp2.2\TitleLandmark_Models.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
